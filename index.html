@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ZeiiModzApps — Free Mods Apps</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg:#07050f; --bg2:#0d0a1a; --bg3:#130f22;
+      --card:#100d1e; --border:rgba(180,130,255,0.1);
+      --accent:#b06fff; --accent2:#d4a8ff;
+      --text:#ede8ff; --muted:#7a6e99;
+      --pink:#ff6fc8; --green:#5fff9d;
+    }
+    html { scroll-behavior:smooth; }
+    body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; }
+
+    .blob { position:fixed; border-radius:50%; filter:blur(130px); pointer-events:none; z-index:0; }
+    .blob-1 { width:500px; height:500px; background:rgba(176,111,255,0.07); top:-150px; left:-100px; }
+    .blob-2 { width:400px; height:400px; background:rgba(255,111,200,0.05); bottom:0; right:-100px; }
+
+    /* NAV */
+    nav {
+      position:sticky; top:0; z-index:100;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 24px;
+      background:rgba(7,5,15,0.92); backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+    }
+    .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.3rem; }
+    .logo span { color:var(--accent); }
+    .search-nav {
+      display:flex; align-items:center;
+      background:var(--card); border:1px solid var(--border);
+      border-radius:10px; padding:8px 14px; gap:8px;
+      transition:border-color 0.2s;
+    }
+    .search-nav:focus-within { border-color:rgba(176,111,255,0.4); }
+    .search-nav input { background:none; border:none; outline:none; color:var(--text); font-size:0.88rem; width:180px; }
+    .search-nav input::placeholder { color:var(--muted); }
+
+    /* HERO */
+    .hero-banner {
+      position:relative; z-index:1;
+      background:linear-gradient(135deg,#0f0920,#1a0f35,#0d0720);
+      border-bottom:1px solid var(--border);
+      padding:50px 24px; text-align:center; overflow:hidden;
+    }
+    .hero-banner::before {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse at 50% 0%,rgba(176,111,255,0.15),transparent 70%);
+    }
+    .hero-banner h1 { font-family:'Syne',sans-serif; font-size:clamp(1.8rem,5vw,3rem); font-weight:800; line-height:1.1; margin-bottom:12px; position:relative; }
+    .hero-banner h1 span { background:linear-gradient(135deg,#b06fff,#ff6fc8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .hero-banner p { color:var(--muted); font-size:0.95rem; position:relative; }
+    .hero-stats { display:flex; justify-content:center; gap:30px; margin-top:28px; flex-wrap:wrap; position:relative; }
+    .hero-stat { text-align:center; }
+    .hero-stat-num { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; background:linear-gradient(135deg,#b06fff,#ff6fc8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .hero-stat-label { font-size:0.75rem; color:var(--muted); }
+
+    /* MAIN */
+    .main { max-width:1100px; margin:0 auto; padding:30px 20px; position:relative; z-index:1; }
+
+    /* KATEGORI */
+    .cat-scroll { display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; margin-bottom:28px; scrollbar-width:none; }
+    .cat-scroll::-webkit-scrollbar { display:none; }
+    .cat-tab { white-space:nowrap; background:var(--card); border:1px solid var(--border); color:var(--muted); padding:8px 18px; border-radius:100px; font-size:0.83rem; cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif; flex-shrink:0; }
+    .cat-tab:hover, .cat-tab.active { border-color:var(--accent); color:var(--accent2); background:rgba(176,111,255,0.1); }
+
+    .section-title { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+    .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* APP GRID */
+    .app-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; margin-bottom:40px; }
+
+    .app-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:14px; padding:16px;
+      display:flex; align-items:center; gap:14px;
+      cursor:pointer; transition:all 0.25s; position:relative; overflow:hidden;
+    }
+    .app-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(176,111,255,0.05),transparent); opacity:0; transition:opacity 0.3s; }
+    .app-card:hover { border-color:rgba(176,111,255,0.3); transform:translateY(-2px); box-shadow:0 8px 30px rgba(176,111,255,0.12); }
+    .app-card:hover::before { opacity:1; }
+
+    .app-icon-wrap { width:64px; height:64px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:2rem; flex-shrink:0; position:relative; }
+    .mod-badge { position:absolute; top:-4px; right:-4px; background:linear-gradient(135deg,#b06fff,#ff6fc8); color:#fff; font-size:0.5rem; font-weight:700; padding:2px 5px; border-radius:4px; font-family:'Syne',sans-serif; }
+
+    .app-info { flex:1; min-width:0; }
+    .app-name { font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .app-meta { color:var(--muted); font-size:0.78rem; margin-bottom:6px; }
+    .app-tags { display:flex; gap:5px; flex-wrap:wrap; }
+    .tag { font-size:0.65rem; padding:2px 8px; border-radius:100px; font-family:'Syne',sans-serif; font-weight:600; }
+    .tag-mod { background:rgba(176,111,255,0.15); color:var(--accent2); }
+    .tag-free { background:rgba(95,255,157,0.1); color:var(--green); }
+    .tag-new { background:rgba(255,111,200,0.12); color:var(--pink); }
+    .tag-hot { background:rgba(255,111,111,0.12); color:#ff9f9f; }
+    .tag-ver { background:rgba(255,255,255,0.06); color:var(--muted); }
+
+    .btn-dl { background:linear-gradient(135deg,#b06fff,#8a3fff); color:#fff; border:none; padding:10px 16px; border-radius:10px; font-family:'Syne',sans-serif; font-weight:700; font-size:0.8rem; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; white-space:nowrap; box-shadow:0 4px 15px rgba(176,111,255,0.3); text-decoration:none; display:inline-block; flex-shrink:0; }
+    .btn-dl:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(176,111,255,0.45); }
+
+    /* MODAL */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:200; align-items:center; justify-content:center; padding:16px; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:var(--bg3); border:1px solid rgba(176,111,255,0.2); border-radius:20px; padding:28px; max-width:480px; width:100%; position:relative; animation:fadeUp 0.3s ease; box-shadow:0 0 60px rgba(176,111,255,0.15); max-height:90vh; overflow-y:auto; }
+    .modal-close { position:absolute; top:14px; right:14px; background:none; border:none; color:var(--muted); font-size:1.2rem; cursor:pointer; transition:color 0.2s; }
+    .modal-close:hover { color:var(--text); }
+    .modal-icon { width:80px; height:80px; border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:2.8rem; margin-bottom:16px; }
+    .modal h2 { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800; margin-bottom:4px; }
+    .modal-dev { color:var(--muted); font-size:0.85rem; margin-bottom:14px; }
+    .modal-tags-wrap { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+    .modal-desc { color:var(--muted); font-size:0.88rem; line-height:1.6; margin-bottom:20px; }
+    .modal-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+    .modal-info-item { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 14px; }
+    .modal-info-label { font-size:0.72rem; color:var(--muted); margin-bottom:3px; }
+    .modal-info-val { font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:700; }
+    .btn-dl-big { display:block; width:100%; text-align:center; background:linear-gradient(135deg,#b06fff,#8a3fff); color:#fff; border:none; padding:15px; border-radius:12px; font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; cursor:pointer; box-shadow:0 0 30px rgba(176,111,255,0.35); transition:transform 0.2s,box-shadow 0.2s; text-decoration:none; }
+    .btn-dl-big:hover { transform:translateY(-2px); box-shadow:0 0 45px rgba(176,111,255,0.5); }
+
+    .empty { text-align:center; padding:60px 20px; color:var(--muted); grid-column:1/-1; }
+    .empty-icon { font-size:3rem; margin-bottom:12px; }
+
+    footer { position:relative; z-index:1; border-top:1px solid var(--border); padding:24px; text-align:center; color:var(--muted); font-size:0.82rem; }
+    footer span { color:var(--accent2); }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    .app-card { animation:fadeUp 0.5s ease both; }
+
+    @media(max-width:600px) {
+      .app-grid { grid-template-columns:1fr; }
+      .search-nav input { width:110px; }
+      .hero-stats { gap:18px; }
+      nav { gap:10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<nav>
+  <div class="logo">ZeiiModz<span>Apps</span></div>
+  <div class="search-nav">
+    <span style="color:var(--muted)">🔍</span>
+    <input type="text" placeholder="Cari aplikasi mod..." id="searchInput" oninput="renderApps()"/>
+  </div>
+</nav>
+
+<div class="hero-banner">
+  <h1>Free Mods Apps<br/><span>Semua Unlocked, 100% Gratis</span></h1>
+  <p>Kumpulan aplikasi mod terbaik. Klik & langsung download!</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hero-stat-num" id="totalApps">0</div><div class="hero-stat-label">Aplikasi</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-label">Gratis</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">MOD</div><div class="hero-stat-label">Premium Unlocked</div></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="cat-scroll" id="catTabs"></div>
+  <div class="section-title" id="sectionLabel">Semua Aplikasi</div>
+  <div class="app-grid" id="appGrid"></div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<footer>© 2025 <span>ZeiiModzApps</span> · Free Mods Apps · Semua APK aman & terverifikasi</footer>
+
+<script>
+// ============================================================
+//  DATA APLIKASI — KAMU BISA EDIT/TAMBAH DI SINI
+//  Cara tambah APK baru: copy salah satu blok { ... },
+//  tempel di bawahnya, lalu ganti isinya.
+//  Untuk driveLink: upload APK ke Google Drive,
+//  klik kanan → Share → Anyone with link → Copy link, tempel di sini!
+// ============================================================
+const apps = [
+  {
+    id: 1,
+    name: "WhatsApp Mod",
+    dev: "ZeiiModzApps",
+    category: "Sosial",
+    icon: "💬",
+    iconBg: "linear-gradient(135deg,#1a0f35,#2d1a55)",
+    version: "v2.24.1",
+    size: "58 MB",
+    rating: "4.9",
+    downloads: "120K+",
+    tags: ["MOD", "FREE", "NEW"],
+    desc: "WhatsApp versi mod dengan fitur premium unlocked! Sembunyikan status online, anti-ban, tema custom, balas otomatis, dan masih banyak lagi.",
+    features: ["✅ Anti-Ban", "✅ Sembunyikan status online", "✅ Tema custom unlimited", "✅ Balas otomatis", "✅ Kirim file hingga 1GB"],
+    driveLink: "https://drive.google.com/GANTI_LINK_INI"
+  },
+  {
+    id: 2,
+    name: "Instagram Mod",
+    dev: "ZeiiModzApps",
+    category: "Sosial",
+    icon: "📸",
+    iconBg: "linear-gradient(135deg,#2e0f20,#4a1a35)",
+    version: "v3.1.0",
+    size: "72 MB",
+    rating: "4.8",
+    downloads: "95K+",
+    tags: ["MOD", "FREE"],
+    desc: "Instagram mod dengan download foto & video, lihat story tanpa ketahuan, zoom foto profil, dan semua fitur premium gratis!",
+    features: ["✅ Download foto & video", "✅ Lihat story tanpa ketahuan", "✅ Zoom foto profil", "✅ Tanpa iklan", "✅ Dark mode premium"],
+    driveLink: "https://drive.google.com/GANTI_LINK_INI"
+  },
+  {
+    id: 3,
+    name: "YouTube Mod",
+    dev: "ZeiiModzApps",
+    category: "Media",
+    icon: "▶️",
+    iconBg: "linear-gradient(135deg,#2e0f0f,#4a1a1a)",
+    version: "v19.12.3",
+    size: "96 MB",
+    rating: "4.9",
+    downloads: "200K+",
+    tags: ["MOD", "FREE", "HOT"],
+    desc: "YouTube tanpa iklan, background play, download video, picture-in-picture, dan semua fitur YouTube Premium gratis!",
+    features: ["✅ Tanpa iklan sama sekali", "✅ Background play", "✅ Download video & audio", "✅ Picture-in-picture", "✅ Semua fitur Premium"],
+    driveLink: "https://drive.google.com/GANTI_LINK_INI"
+  },
+  {
+    id: 4,
+    name: "Spotify Mod",
+    dev: "ZeiiModzApps",
+    category: "Musik",
+    icon: "🎵",
+    iconBg: "linear-gradient(135deg,#0f2e0f,#1a4a1a)",
+    version: "v8.9.22",
+    size: "43 MB",
+    rating: "4.8",
+    downloads: "180K+",
+    tags: ["MOD", "FREE", "HOT"],
+    desc: "Spotify Premium gratis! Dengarkan 80 juta lagu tanpa iklan, download lagu untuk offline, skip unlimited.",
+    features: ["✅ Tanpa iklan", "✅ Download lagu offline", "✅ Skip unlimited", "✅ Kualitas audio tinggi", "✅ Semua fitur Premium"],
+    driveLink: "https://drive.google.com/GANTI_LINK_INI"
+  },
+  {
+    id: 5,
+    name: "TikTok Mod",
+    dev: "ZeiiModzApps",
+    category: "Sosial",
+    icon: "🎶",
+    iconBg: "linear-gradient(135deg,#0f0f2e,#1a1a4a)",
+    version: "v34.5.1",
+    size: "81 MB",
+    rating: "4.7",
+    downloads: "75K+",
+    tags: ["MOD", "FREE"],
+    desc: "TikTok mod tanpa watermark, download video, region unlock semua konten, dan fitur creator premium.",
+    features: ["✅ Download tanpa watermark", "✅ Tanpa iklan", "✅ Region unlock semua konten", "✅ Fitur creator premium"],
+    driveLink: "https://drive.google.com/GANTI_LINK_INI"
+  },
+  {
+    id: 6,
+    name: "Canva Mod",
+    dev: "ZeiiModzApps",
+    category: "Tools",
+    icon: "🎨",
+    iconBg: "linear-gradient(135deg,#1a0f2e,#2d1a4a)",
+    version: "v2.244.0",
+    size: "67 MB",
+    rating: "4.9",
+    downloads: "60K+",
+    tags: ["MOD", "FREE", "NEW"],
+    desc: "Canva Pro gratis! Akses semua template premium, hapus background foto, export tanpa watermark.",
+    features: ["✅ Semua template premium", "✅ Hapus background foto", "✅ Tanpa watermark", "✅ Font & elemen premium", "✅ Export kualitas tinggi"],
+    driveLink: "https://drive.google.com/GANTI_LINK_INI"
+  }
+];
+
+// ============================================================
+let activeCategory = "Semua";
+
+function getCategories() {
+  return ["Semua", ...new Set(apps.map(a => a.category))];
+}
+
+function renderCategories() {
+  const tabs = document.getElementById('catTabs');
+  tabs.innerHTML = '';
+  getCategories().forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-tab' + (cat === activeCategory ? ' active' : '');
+    btn.textContent = cat;
+    btn.onclick = () => { activeCategory = cat; renderCategories(); renderApps(); };
+    tabs.appendChild(btn);
+  });
+}
+
+function tagClass(t) {
+  if (t === 'MOD') return 'tag-mod';
+  if (t === 'FREE') return 'tag-free';
+  if (t === 'NEW') return 'tag-new';
+  if (t === 'HOT') return 'tag-hot';
+  return 'tag-ver';
+}
+
+function renderApps() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const grid = document.getElementById('appGrid');
+
+  let filtered = apps.filter(a => {
+    const matchCat = activeCategory === 'Semua' || a.category === activeCategory;
+    const matchQ = !q || a.name.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+
+  document.getElementById('sectionLabel').textContent = activeCategory === 'Semua' ? 'Semua Aplikasi' : 'Kategori: ' + activeCategory;
+  document.getElementById('totalApps').textContent = apps.length;
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>Aplikasi tidak ditemukan</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((app, i) => `
+    <div class="app-card" style="animation-delay:${i*0.06}s" onclick="openDetail(${app.id})">
+      <div class="app-icon-wrap" style="background:${app.iconBg}">
+        ${app.icon}
+        <span class="mod-badge">MOD</span>
+      </div>
+      <div class="app-info">
+        <div class="app-name">${app.name}</div>
+        <div class="app-meta">⭐ ${app.rating} · ${app.downloads} unduhan · ${app.size}</div>
+        <div class="app-tags">
+          ${app.tags.map(t => `<span class="tag ${tagClass(t)}">${t}</span>`).join('')}
+          <span class="tag tag-ver">${app.version}</span>
+        </div>
+      </div>
+      <a class="btn-dl" href="${app.driveLink}" target="_blank" onclick="event.stopPropagation()">⬇ Unduh</a>
+    </div>
+  `).join('');
+}
+
+function openDetail(id) {
+  const app = apps.find(a => a.id === id);
+  if (!app) return;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-icon" style="background:${app.iconBg}">${app.icon}</div>
+    <h2>${app.name}</h2>
+    <div class="modal-dev">👤 ${app.dev} · 📁 ${app.category}</div>
+    <div class="modal-tags-wrap">
+      ${app.tags.map(t => `<span class="tag ${tagClass(t)}">${t}</span>`).join('')}
+      <span class="tag tag-ver">${app.version}</span>
+    </div>
+    <p class="modal-desc">${app.desc}</p>
+    <div class="modal-info-grid">
+      <div class="modal-info-item"><div class="modal-info-label">⭐ Rating</div><div class="modal-info-val">${app.rating}/5</div></div>
+      <div class="modal-info-item"><div class="modal-info-label">📦 Ukuran</div><div class="modal-info-val">${app.size}</div></div>
+      <div class="modal-info-item"><div class="modal-info-label">⬇ Unduhan</div><div class="modal-info-val">${app.downloads}</div></div>
+      <div class="modal-info-item"><div class="modal-info-label">🔖 Versi</div><div class="modal-info-val">${app.version}</div></div>
+    </div>
+    <div style="margin-bottom:20px">
+      <div style="font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;margin-bottom:10px;color:var(--accent2)">✨ Fitur Mod</div>
+      ${app.features.map(f => `<div style="font-size:0.85rem;color:var(--muted);padding:4px 0">${f}</div>`).join('')}
+    </div>
+    <a class="btn-dl-big" href="${app.driveLink}" target="_blank">⬇ Download APK — Gratis!</a>
+    <p style="text-align:center;color:var(--muted);font-size:0.75rem;margin-top:10px">🔒 Link aman via Google Drive · ZeiiModzApps</p>
+  `;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+renderCategories();
+renderApps();
+</script>
+</body>
+</html>
