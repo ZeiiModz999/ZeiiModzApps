@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AppVault — Berbagi Aplikasi Terbaik</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #090c10;
+      --bg2: #0f1318;
+      --bg3: #151b22;
+      --card: #111620;
+      --border: rgba(255,255,255,0.07);
+      --accent: #c8ff57;
+      --accent2: #57ffd4;
+      --text: #e8edf3;
+      --muted: #6b7585;
+      --gold: #f5c842;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* NOISE OVERLAY */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* GLOW BLOBS */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blob-1 { width: 500px; height: 500px; background: rgba(200,255,87,0.05); top: -150px; left: -100px; }
+    .blob-2 { width: 400px; height: 400px; background: rgba(87,255,212,0.04); bottom: 100px; right: -100px; }
+
+    /* NAVBAR */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 40px;
+      background: rgba(9,12,16,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+    .logo span { color: var(--accent); }
+
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      background: var(--accent);
+      color: #090c10;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 100px 20px 80px;
+      max-width: 860px;
+      margin: 0 auto;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(200,255,87,0.08);
+      border: 1px solid rgba(200,255,87,0.2);
+      color: var(--accent);
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 28px;
+      letter-spacing: 0.5px;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 22px;
+    }
+    .hero h1 .hl { color: var(--accent); }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #090c10;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(200,255,87,0.25);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
+
+    /* STATS BAR */
+    .stats {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      animation: fadeUp 0.8s 0.2s ease both;
+    }
+    .stat {
+      flex: 1;
+      max-width: 200px;
+      text-align: center;
+      padding: 26px 20px;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+
+    /* SEARCH */
+    .search-section {
+      position: relative;
+      z-index: 1;
+      padding: 60px 40px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      animation: fadeUp 0.8s 0.3s ease both;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 6px 6px 6px 20px;
+      max-width: 600px;
+      margin: 0 auto 40px;
+      transition: border-color 0.2s;
+    }
+    .search-bar:focus-within { border-color: rgba(200,255,87,0.3); }
+    .search-bar input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+    }
+    .search-bar input::placeholder { color: var(--muted); }
+    .search-btn {
+      background: var(--accent);
+      color: #090c10;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    /* CATEGORIES */
+    .categories {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 50px;
+    }
+    .cat-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 18px;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .cat-btn:hover, .cat-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(200,255,87,0.06);
+    }
+
+    /* SECTION TITLE */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    .see-all {
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .see-all:hover { color: var(--accent); }
+
+    /* APP GRID */
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 60px;
+    }
+
+    .app-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      cursor: pointer;
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.6s ease both;
+    }
+    .app-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      background: linear-gradient(135deg, rgba(200,255,87,0.04), transparent);
+    }
+    .app-card:hover { transform: translateY(-4px); border-color: rgba(200,255,87,0.2); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+    .app-card:hover::before { opacity: 1; }
+
+    .app-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .app-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+    }
+
+    .app-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-family: 'Syne', sans-serif;
+    }
+    .badge-new { background: rgba(200,255,87,0.12); color: var(--accent); }
+    .badge-hot { background: rgba(255,87,87,0.12); color: #ff6b6b; }
+    .badge-free { background: rgba(87,255,212,0.12); color: var(--accent2); }
+    .badge-top { background: rgba(245,200,66,0.12); color: var(--gold); }
+
+    .app-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+    .app-cat { color: var(--muted); font-size: 0.8rem; margin-bottom: 12px; }
+    .app-desc { color: var(--muted); font-size: 0.82rem; line-height: 1.5; margin-bottom: 16px; }
+
+    .app-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .app-rating {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.82rem;
+      color: var(--gold);
+    }
+
+    .app-size { color: var(--muted); font-size: 0.78rem; }
+
+    .btn-download {
+      background: rgba(200,255,87,0.1);
+      border: 1px solid rgba(200,255,87,0.2);
+      color: var(--accent);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Syne', sans-serif;
+      transition: background 0.2s;
+    }
+    .btn-download:hover { background: rgba(200,255,87,0.18); }
+
+    /* FEATURED BANNER */
+    .featured {
+      background: linear-gradient(135deg, #111e10, #0c1a18);
+      border: 1px solid rgba(200,255,87,0.15);
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+      flex-wrap: wrap;
+      position: relative;
+      overflow: hidden;
+    }
+    .featured::after {
+      content: '⚡';
+      position: absolute;
+      right: 40px;
+      bottom: -20px;
+      font-size: 8rem;
+      opacity: 0.04;
+    }
+    .featured-tag {
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .featured h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .featured p { color: var(--muted); font-size: 0.9rem; max-width: 400px; line-height: 1.6; }
+    .featured-icon { font-size: 5rem; }
+
+    /* UPLOAD SECTION */
+    .upload-section {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 60px 40px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .upload-section h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+    .upload-section p { color: var(--muted); margin-bottom: 30px; font-size: 1rem; }
+
+    .upload-box {
+      border: 2px dashed rgba(200,255,87,0.2);
+      border-radius: 16px;
+      padding: 50px;
+      max-width: 500px;
+      margin: 0 auto 20px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .upload-box:hover { border-color: rgba(200,255,87,0.5); background: rgba(200,255,87,0.03); }
+    .upload-box .upload-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .upload-box p { color: var(--muted); font-size: 0.88rem; }
+    .upload-box span { color: var(--accent); cursor: pointer; }
+
+    /* FOOTER */
+    footer {
+      position: relative;
+      z-index: 1;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 50px 40px 30px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto 40px;
+    }
+    .footer-brand p { color: var(--muted); font-size: 0.88rem; margin-top: 12px; line-height: 1.6; max-width: 260px; }
+    .footer-col h4 { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; margin-bottom: 16px; }
+    .footer-col a { display: block; color: var(--muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 10px; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--text); }
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .app-card:nth-child(1) { animation-delay: 0.05s; }
+    .app-card:nth-child(2) { animation-delay: 0.1s; }
+    .app-card:nth-child(3) { animation-delay: 0.15s; }
+    .app-card:nth-child(4) { animation-delay: 0.2s; }
+    .app-card:nth-child(5) { animation-delay: 0.25s; }
+    .app-card:nth-child(6) { animation-delay: 0.3s; }
+    .app-card:nth-child(7) { animation-delay: 0.35s; }
+    .app-card:nth-child(8) { animation-delay: 0.4s; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      max-width: 460px;
+      width: 100%;
+      position: relative;
+      animation: fadeUp 0.3s ease;
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: none; border: none;
+      color: var(--muted); font-size: 1.3rem;
+      cursor: pointer; transition: color 0.2s;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal h3 { font-family: 'Syne', sans-serif; font-size: 1.4rem; margin-bottom: 8px; }
+    .modal p { color: var(--muted); font-size: 0.88rem; margin-bottom: 20px; }
+    .modal input, .modal textarea, .modal select {
+      width: 100%; background: var(--card); border: 1px solid var(--border);
+      color: var(--text); padding: 12px 14px; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+      margin-bottom: 12px; outline: none; transition: border-color 0.2s;
+    }
+    .modal input:focus, .modal textarea:focus, .modal select:focus { border-color: rgba(200,255,87,0.3); }
+    .modal textarea { resize: vertical; min-height: 80px; }
+    .modal select option { background: var(--bg3); }
+
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      .nav-links { display: none; }
+      .hero { padding: 70px 20px 50px; }
+      .stats { flex-wrap: wrap; }
+      .stat { min-width: 50%; border-right: none; border-bottom: 1px solid var(--border); }
+      .search-section { padding: 40px 20px 20px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .featured { padding: 28px; }
+      .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="logo">App<span>Vault</span></div>
+  <ul class="nav-links">
+    <li><a href="#">Beranda</a></li>
+    <li><a href="#">Kategori</a></li>
+    <li><a href="#">Terbaru</a></li>
+    <li><a href="#">Terpopuler</a></li>
+  </ul>
+  <button class="nav-cta" onclick="openModal()">+ Upload APK</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🚀 Platform Berbagi APK #1 Indonesia</div>
+  <h1>Temukan & Bagikan <span class="hl">Aplikasi</span> Favoritmu</h1>
+  <p>Ribuan aplikasi Android gratis, aman, dan siap diunduh. Bergabung dan mulai berbagi APK terbaikmu hari ini.</p>
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="document.querySelector('.search-section').scrollIntoView({behavior:'smooth'})">Jelajahi Aplikasi</button>
+    <button class="btn-ghost" onclick="openModal()">Upload APK Kamu</button>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><div class="stat-num">12K+</div><div class="stat-label">Aplikasi Tersedia</div></div>
+  <div class="stat"><div class="stat-num">850K</div><div class="stat-label">Unduhan / Bulan</div></div>
+  <div class="stat"><div class="stat-num">45K+</div><div class="stat-label">Pengguna Aktif</div></div>
+  <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Gratis Selamanya</div></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="search-section">
+
+  <!-- SEARCH -->
+  <div class="search-bar">
+    <input type="text" placeholder="Cari nama aplikasi, kategori, atau developer..." id="searchInput" oninput="filterApps()"/>
+    <button class="search-btn">Cari</button>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div class="categories">
+    <button class="cat-btn active" onclick="filterCategory('all', this)">Semua</button>
+    <button class="cat-btn" onclick="filterCategory('tools', this)">🔧 Tools</button>
+    <button class="cat-btn" onclick="filterCategory('game', this)">🎮 Game</button>
+    <button class="cat-btn" onclick="filterCategory('social', this)">💬 Sosial</button>
+    <button class="cat-btn" onclick="filterCategory('media', this)">🎬 Media</button>
+    <button class="cat-btn" onclick="filterCategory('finance', this)">💰 Keuangan</button>
+    <button class="cat-btn" onclick="filterCategory('edu', this)">📚 Edukasi</button>
+    <button class="cat-btn" onclick="filterCategory('music', this)">🎵 Musik</button>
+  </div>
+
+  <!-- FEATURED -->
+  <div class="featured">
+    <div>
+      <div class="featured-tag">⭐ Pilihan Editor</div>
+      <h2>Aplikasi Unggulan Minggu Ini</h2>
+      <p>Dikurasi oleh tim kami — aplikasi terbaik dengan keamanan terverifikasi dan performa optimal untuk perangkat Anda.</p>
+      <br/>
+      <button class="btn-primary" style="margin-top:4px">Lihat Semua Pilihan</button>
+    </div>
+    <div class="featured-icon">🏆</div>
+  </div>
+
+  <!-- APP GRID -->
+  <div class="section-header">
+    <div class="section-title">Aplikasi Terpopuler</div>
+    <a class="see-all" href="#">Lihat semua →</a>
+  </div>
+
+  <div class="app-grid" id="appGrid">
+
+    <div class="app-card" data-cat="tools">
+      <div class="app-card-top">
+        <div class="app-icon" style="background:linear-gradient(135deg,#1a2a1a,#2d4a2d)">🔒</div>
+        <span class="app-badge badge-top">TOP</span>
+      </div>
+      <div class="app-name">VaultLock Pro</div>
+      <div class="app-cat">🔧 Tools · Keamanan</div>
+      <div class="app-desc">Kunci aplikasi dan foto dengan enkripsi AES-256. Proteksi terbaik untuk privasi Anda.</div>
+      <div class="app-footer">
+        <div>
+          <div class="app-rating">★★★★★ <span style="color:var(--muted)">4.9</span></div>
+          <div class="app-size">24 MB</div>
+        </div>
+        <button class="btn-download">⬇ Unduh</button>
+      </div>
+    </div>
+
+    <div class="app-card" data-cat="game">
+      <div class="app-card-top">
+        <div class="app-icon" style="background:linear-gradient(135deg,#2a1a2a,#4a2d3a)">🎮</div>
+        <span class="app-badge badge-hot">HOT</span>
+      </div>
+      <div class="app-name">NeonRacer X</div>
+      <div class="app-cat">🎮 Game · Racing</div>
+      <div class="app-desc">Balapan futuristik dengan grafik neon yang memukau. 30 lintasan, 100+ kustomisasi mobil.</div>
+      <div class="app-footer">
+        <div>
+          <div class="app-rating">★★★★☆ <span style="color:var(--muted)">4.7</span></div>
+          <div class="app-size">87 MB</div>
+        </div>
+        <button class="btn-download">⬇ Unduh</button>
+      </div>
+    </div>
+
+    <div class="app-card" data-cat="social">
+      <div class="app-card-top">
+        <div class="app-icon" style="background:linear-gradient(135deg,#1a1a2a,#2d2d4a)">💬</div>
+        <span class="app-badge badge-new">BARU</span>
+      </div>
+      <div class="app-name">ChatLink</div>
+      <div class="app-cat">💬 Sosial · Pesan</div>
+      <div class="app-desc">Chat terenkripsi end-to-end. Berbagi foto, video, dan file hingga 2GB tanpa batasan.</div>
+      <div class="app-footer">
+        <div>
+          <div class="app-rating">★★★★★ <span style="color:var(--muted)">4.8</span></div>
+          <div class="app-size">18 MB</div>
+        </div>
+        <button class="btn-download">⬇ Unduh</button>
+      </div>
+    </div>
+
+    <div class="app-card" data-cat="media">
+      <div class="app-card-top">
+        <div class="app-icon" style="background:linear-gradient(135deg,#2a1a1a,#4a2d2d)">🎬</div>
+        <span class="app-badge badge-free">GRATIS</span>
+      </div>
+      <div class="app-name">FlickPlay</div>
+      <div class="app-cat">🎬 Media · Video Player</div>
+      <div class="app-desc">Putar semua format video 4K, MKV, MP4 tanpa konversi. Support subtitle 100+ bahasa.</div>
+      <div class="app-footer">
+        <div>
+          <div class="app-rating">★★★★★ <span style="color:var(--muted)">4.9</span></div>
+          <div class="app-size">32 MB</div>
+        </div>
+        <button class="btn-download">⬇ Unduh</button>
+      </div>
+    </div>
+
+    <div class="app-card" data-cat="finance">
+      <div class="app-card-top">
+        <div class="app-icon" style="background:linear-gradient(135deg,#1a2a1a,#2d4020)">💰</div>
+        <span class="app-badge badge-top">TOP</span>
+      </div>
+      <div class="app-name">BudgetWise</div>
+      <div class="app-cat">💰 Keuangan · Manajemen</div>
+      <div class="app-desc">Catat pengeluaran, buat anggaran, dan pantau keuangan bulanan dengan grafik lengkap.</div>
+      <div class="app-footer">
+        <div>
+          <div class="app-rating">★★★★☆ <span style="color:var(--muted)">4.6</span></div>
+          <div class="app-size">15 MB</div>
+        </div>
+        <button class="btn-download">⬇ Unduh</button>
+      </div>
+    </div>
+
+    <div class="app-card" data-cat="edu">
+      <div class="app-card-top">
+        <div class="app-icon" style="background:linear-gradient(135deg,#1a1a2a,#202040)">📚</div>
+        <span class="app-badge badge-new">BARU</span>
+      </div>
+      <div class="app-name">LearnHub</div>
+      <div class="app-cat">📚 Edukasi · E-Learning</div>
+      <div class="app-desc">Akses 5.000+ kursus gratis: programming, desain, bahasa Inggris, dan sains terapan.</div>
+      <div class="app-footer">
+        <div>
+          <div class="app-rating">★★★★★ <span style="color:var(--muted)">4.9</span></div>
+          <div class="app-size">21 MB</div>
+        </div>
+        <button class="btn-download">⬇ Unduh</button>
+      </div>
+    </div>
+
+    <div class="app-card" data-cat="music">
+      <div class="app-card-top">
+        <div class="app-icon" style="background:linear-gradient(135deg,#2a1a20,#4a1a30)">🎵</div>
+        <span class="app-badge badge-hot">HOT</span>
+      </div>
+      <div class="app-name">BeatFlow</div>
+      <div class="app-cat">🎵 Musik · Streaming</div>
+      <div class="app-desc">Dengarkan 80 juta lagu tanpa iklan, mode offline, dan equalizer 10 band profesional.</div>
+      <div class="app-footer">
+        <div>
+          <div class="app-rating">★★★★★ <span style="color:var(--muted)">4.8</span></div>
+          <div class="app-size">28 MB</div>
+        </div>
+        <button class="btn-download">⬇ Unduh</button>
+      </div>
+    </div>
+
+    <div class="app-card" data-cat="tools">
+      <div class="app-card-top">
+        <div class="app-icon" style="background:linear-gradient(135deg,#1a1f1a,#263326)">⚡</div>
+        <span class="app-badge badge-free">GRATIS</span>
+      </div>
+      <div class="app-name">BoostMaster</div>
+      <div class="app-cat">🔧 Tools · Optimasi</div>
+      <div class="app-desc">Bersihkan cache, hapus file sampah, dan optimalkan RAM untuk performa Android maksimal.</div>
+      <div class="app-footer">
+        <div>
+          <div class="app-rating">★★★★☆ <span style="color:var(--muted)">4.5</span></div>
+          <div class="app-size">12 MB</div>
+        </div>
+        <button class="btn-download">⬇ Unduh</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- UPLOAD SECTION -->
+  <div class="upload-section" style="border-radius:20px;margin-bottom:50px">
+    <h2>Punya Aplikasi Keren?</h2>
+    <p>Bagikan APK-mu kepada ribuan pengguna — gratis, mudah, dan cepat.</p>
+    <div class="upload-box" onclick="openModal()">
+      <div class="upload-icon">📦</div>
+      <p>Seret & letakkan file APK di sini<br/>atau <span>klik untuk memilih file</span></p>
+    </div>
+    <p style="color:var(--muted);font-size:0.8rem">Mendukung format APK · Maks. 200MB · Aman & Terverifikasi</p>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo">App<span>Vault</span></div>
+      <p>Platform berbagi aplikasi Android terpercaya. Temukan, unduh, dan bagikan APK favoritmu dengan mudah dan aman.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Jelajahi</h4>
+      <a href="#">Aplikasi Terbaru</a>
+      <a href="#">Terpopuler</a>
+      <a href="#">Pilihan Editor</a>
+      <a href="#">Semua Kategori</a>
+    </div>
+    <div class="footer-col">
+      <h4>Developer</h4>
+      <a href="#">Upload APK</a>
+      <a href="#">Panduan Upload</a>
+      <a href="#">Kebijakan Konten</a>
+      <a href="#">API Docs</a>
+    </div>
+    <div class="footer-col">
+      <h4>Bantuan</h4>
+      <a href="#">FAQ</a>
+      <a href="#">Hubungi Kami</a>
+      <a href="#">Kebijakan Privasi</a>
+      <a href="#">Syarat Layanan</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 AppVault · Dibuat dengan ❤️ di Indonesia</span>
+    <span>🔒 Semua aplikasi diverifikasi & aman</span>
+  </div>
+</footer>
+
+<!-- MODAL UPLOAD -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3>📦 Upload APK</h3>
+    <p>Isi detail aplikasi Anda dan unggah file APK.</p>
+    <input type="text" placeholder="Nama Aplikasi *"/>
+    <select>
+      <option value="" disabled selected>Pilih Kategori *</option>
+      <option>🔧 Tools</option>
+      <option>🎮 Game</option>
+      <option>💬 Sosial</option>
+      <option>🎬 Media</option>
+      <option>💰 Keuangan</option>
+      <option>📚 Edukasi</option>
+      <option>🎵 Musik</option>
+    </select>
+    <textarea placeholder="Deskripsi aplikasi *"></textarea>
+    <input type="text" placeholder="Versi Aplikasi (contoh: 1.0.0) *"/>
+    <input type="file" accept=".apk" style="cursor:pointer"/>
+    <button class="btn-primary" style="width:100%;padding:14px;font-size:0.95rem;border-radius:10px;margin-top:4px" onclick="submitUpload()">Upload Sekarang</button>
+  </div>
+</div>
+
+<script>
+  function openModal() {
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+  function submitUpload() {
+    alert('✅ Terima kasih! APK Anda sedang dalam proses verifikasi.');
+    closeModal();
+  }
+
+  function filterCategory(cat, btn) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.app-card').forEach(card => {
+      if (cat === 'all' || card.dataset.cat === cat) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  function filterApps() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    document.querySelectorAll('.app-card').forEach(card => {
+      const name = card.querySelector('.app-name').textContent.toLowerCase();
+      const cat = card.querySelector('.app-cat').textContent.toLowerCase();
+      const desc = card.querySelector('.app-desc').textContent.toLowerCase();
+      card.style.display = (name+cat+desc).includes(q) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>
